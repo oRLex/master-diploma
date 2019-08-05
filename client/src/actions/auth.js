@@ -4,12 +4,45 @@ import {
 } from './alert'
 import {
   LOGIN_SUCCESS,
+  REGISTER_FAIL,
+  REGISTER_SUCCESS,
   LOGIN_FAIL,
   USER_LOADED,
   AUTH_ERROR,
-  LOGOUT
+  LOGOUT,
+  CLEAR_PROFILE,
+  PROFILE_ERROR,
+  GET_PROFILE
 } from './types';
 import setAuthToken from '../utils/setAuthToken'
+
+// Register User
+export const register = (userData, profileData, history) => dispatch => {
+  const res = axios.post('/api/users', userData)
+  dispatch({
+      type: REGISTER_SUCCESS,
+      payload: res.data
+    })
+    .then(data => {
+      axios.post('/api/profile', profileData)
+      dispatch({
+          type: GET_PROFILE,
+          payload: data
+        })
+        .catch(err =>
+          dispatch({
+            type: PROFILE_ERROR,
+            payload: err.response.data
+          })
+        )
+    })
+    .catch(err =>
+      dispatch({
+        type: REGISTER_FAIL,
+        payload: err.response.data
+      })
+    );
+};
 
 // Load User
 export const loadUser = () => async dispatch => {
@@ -71,6 +104,10 @@ export const login = (email, password) => async dispatch => {
 //  Logout 
 export const logout = () => dispatch => {
   dispatch({
+    type: CLEAR_PROFILE
+  })
+  dispatch({
     type: LOGOUT
   })
+
 }

@@ -10,6 +10,7 @@ import { loadUser } from './actions/auth'
 import setAuthToken from './utils/setAuthToken'
 import Workload from './components/layout/Workload/Workload';
 import PrivateRouter from './components/routing/PrivateRouter';
+import SingleTeacher from './components/layout/Workload/SingleTeacher/SingleTeacher';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token)
@@ -27,6 +28,7 @@ const App = () => {
           <Switch>
             <Route exact path="/" component={Landing} />
             <PrivateRouter exact path="/workload" component={Workload} />
+            {/* <PrivateRouter exact path="/workload/singleteacher" component={SingleTeacher} /> */}
           </Switch>
         </Fragment>
       </Router>

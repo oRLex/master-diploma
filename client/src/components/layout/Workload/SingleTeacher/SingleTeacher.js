@@ -4,7 +4,7 @@ class SingleTeacher extends Component {
   render() {
     return (
       <div>
-        
+        <span>SingleTeacher</span>
       </div>
     );
   }

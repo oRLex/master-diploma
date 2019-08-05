@@ -21,54 +21,52 @@ const ProfileSchema = new mongoose.Schema({
       type: String
     }
   },
-  personalTable: [
-    {
-      halfYear: {
-        type: String,
-        
-      },
-      trainningForm: {
-        type: String,
-      },
-      faculty: {
-        type: String,
-      },
-      disciplinesName: {
-        type: String,
-      },
-      term: {
-        type: String,
-      },
-      сourse: {
-        type: String,
-      },
-      groupNumber: {
-        type: String,
-      },
-      secondTeacher: {
-        type: String,
-        default: "-"
-      },
-      lectionsNumb: {
-        type: String
-      },
-      labsNumb: {
-        type: String
-      },
-      consultaionsNumb: {
-        type: String
-      },
-      practicalNumb: {
-        type: String
-      },
-      ModularContNumb: {
-        type: String
-      },
-      ExamsNumb: {
-        type: String
-      },
-    }
-  ]
+  personalTable: [{
+    halfYear: {
+      type: String,
+
+    },
+    trainningForm: {
+      type: String,
+    },
+    faculty: {
+      type: String,
+    },
+    disciplinesName: {
+      type: String,
+    },
+    term: {
+      type: String,
+    },
+    сourse: {
+      type: String,
+    },
+    groupNumber: {
+      type: String,
+    },
+    secondTeacher: {
+      type: String,
+      default: "-"
+    },
+    lectionsNumb: {
+      type: String
+    },
+    labsNumb: {
+      type: String
+    },
+    consultaionsNumb: {
+      type: String
+    },
+    practicalNumb: {
+      type: String
+    },
+    ModularContNumb: {
+      type: String
+    },
+    ExamsNumb: {
+      type: String
+    },
+  }]
 });
 
 module.exports = Profile = mongoose.model('profile', ProfileSchema);

@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react'
 import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
 import { login } from '../../actions/auth';
 import PropTypes from 'prop-types'
 
 
-const Login = ({ setAlert, login, isAuthenticated }) => {
+const Login = ({ setAlert, login, isAuthenticated, user }) => {
   const initialState = {
     email: '',
     password: ''
@@ -29,8 +29,12 @@ const Login = ({ setAlert, login, isAuthenticated }) => {
   }
 
   // Redirect if logged in
-  if (isAuthenticated) {
+  if (isAuthenticated && user.role === "admin") {
     return <Redirect to="/workload" />
+  } else {
+    if (isAuthenticated && user.role === "user") {
+      return <Redirect to="/workload/singleteacher" />
+    }
   }
   return (
     <Fragment>
@@ -73,11 +77,13 @@ const Login = ({ setAlert, login, isAuthenticated }) => {
 Login.propTypes = {
   setAlert: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
+  auth: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.bool,
 }
 
 const mapStateToProps = state => ({
-  isAuthenticated: state.auth.isAuthenticated
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user
 })
 
 export default connect(mapStateToProps, { setAlert, login })(Login);

@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useEffect, useRef } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -50,7 +50,7 @@ class Navbar extends Component {
     const authLinks = (
       <div className="toolbar_navigation-items">
         <ul>
-          <li><span><Link to="/">Зведене навантаження</Link></span></li>
+          <li><span><Link to="/singleteacher">Зведене навантаження</Link></span></li>
           <li><span><Link to="/">Викладачі</Link></span></li>
         </ul>
       </div>
@@ -59,8 +59,9 @@ class Navbar extends Component {
     const adminLinks = (
       <div className="toolbar_navigation-items">
         <ul>
-          <li><span><Link to="/">Загальне навантаження</Link></span></li>
-          <li><span><Link to="/">Зведене навантаження</Link></span></li>
+          <li><span><Link to="/workload">Загальне навантаження</Link></span></li>
+          <li><span><Link to="/singleteacher">Зведене навантаження</Link></span></li>
+          <li><span><Link to="/addteacher">Додати викладача</Link></span></li>
           <li><span><Link to="/">Викладачі</Link></span></li>
         </ul>
       </div>
@@ -71,7 +72,7 @@ class Navbar extends Component {
           <div className="toolbar__toggle-button">
             <DrawerToggleButton click={this.props.drawerClickHandler} />
           </div>
-          <div className="toolbar_brand"><a href="/">Кафедра програмної інженерії та кібербезпеки</a></div>
+          <div className="toolbar_brand"><Link to="/workload">Кафедра програмної інженерії та кібербезпеки</Link></div>
           <div className="spacer" />
           {/* <div className="toolbar_navigation-items">
             <ul>
