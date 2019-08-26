@@ -1,40 +1,63 @@
 const express = require('express');
-const connectDB = require('./config/db');
-// const path = require('path');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const passport = require('passport');
+const path = require('path');
+
+
+// require schemas
+const users = require('./routes/api/users');
+const profile = require('./routes/api/profile');
 
 const app = express();
 
-// Connect Database
-connectDB();
-// Init admin user
-const User = require('./models/User');
+// Body parser middleware
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(bodyParser.json());
 
-// const user = {
-//   name: "Admin",
-//   email: "admin@gmail.com",
-//   password: "12345",
-//   role: "admin"
-// }
+// DB Config
+const db = require('./config/keys').mongoURI;
 
-// User.create(user, function(e) {
-//   if (e) {
-//       throw e;
-//   }
-// });
+// Connect to MongoDB
+mongoose
+  .connect(db, {
+    useCreateIndex: true,
+    useNewUrlParser: true
+  })
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log(err));
+
+// Passport middleware
+app.use(passport.initialize());
+
+// Passport Config
+require('./config/passport')(passport);
 
 // Init Middleware
 
 // Should allow us to req.body
-app.use(express.json({extended: false}));
+// app.use(express.json({
+//   extended: false
+// }));
 
 app.get('/', (req, res) => res.send(`api`))
 
-// Define Routes
-app.use('/api/users', require('./routes/api/users'));
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/profile', require('./routes/api/profile'));
+// Use Routes
+app.use('/api/users', users);
+app.use('/api/profile', profile);
 
+// Server static assets if in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static('client/build'));
 
-const PORT = process.env.PORT || 5000; // for heroku OR local - 5000
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
-app.listen(PORT, () => console.log(`server started ${PORT}`));
+const port = process.env.PORT || 5000;
+
+app.listen(port, () => console.log(`Server running on port ${port}`));

@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux';
 
 const TableData = ({ experience }) => {
   const experiences = experience.map(exp => (

@@ -1,50 +1,69 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../../middleware/auth')
-const {check, validationResult} = require('express-validator/check')
+const mongoose = require('mongoose');
+const passport = require('passport');
 
+// Load Validation
+const validateProfileInput = require('../../validation/social');
+const validateExperienceInput = require('../../validation/load');
+
+// Load Profile Model
 const Profile = require('../../models/Profile')
+// Load User Model
 const User = require('../../models/User')
 
-// @route   GET api/profile/me
+// @route   GET api/profile/test
+// @desc    Tests profile route
+// @access  Public
+router.get('/test', (req, res) => res.json({
+  msg: 'Profile Works'
+}));
+
+// @route   GET api/profile
 // @desc    Get current users profile
 // @access  Private
-router.get('/me', auth, async (req, res) => {
-  try {
-    const profile = await Profile.findOne({user: req.user.id}).populate('user',
-     ['name', 'avatar']);
+router.get(
+  '/',
+  passport.authenticate('jwt', {
+    session: false
+  }),
+  (req, res) => {
+    const errors = {};
 
-    if(!profile){
-      return res.status(400).json({msg: 'There is no profile to this user'})
-    }
-
-    res.json(profile)
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error')
+    Profile.findOne({
+        user: req.user.id
+      })
+      .populate('user', ['name', 'avatar'])
+      .then(profile => {
+        if (!profile) {
+          errors.noprofile = 'There is no profile for this user';
+          return res.status(404).json(errors);
+        }
+        res.json(profile);
+      })
+      .catch(err => res.status(404).json(err));
   }
-});
+);
 
 // @route   POST api/profile
-// @desc    Create or update user profile
+// @desc    Create or edit user profile
 // @access  Private
 
-router.post('/', 
-  [
-    auth,
-    [
-      check('degree', 'degree is reuired')
-      .not()
-      .isEmpty(),
-      check('telephone', 'telephone is reuired')
-      .not()
-      .isEmpty()
-    ] 
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors.array()})
+router.post(
+  '/',
+  passport.authenticate('jwt', {
+    session: false
+  }),
+  (req, res) => {
+    const {
+      errors,
+      isValid
+    } = validateProfileInput(req.body);
+
+    // Check Validation
+    if (!isValid) {
+      // Return any errors with 400 status
+      return res.status(400).json(errors);
     }
 
     const {
@@ -57,157 +76,220 @@ router.post('/',
     // Build profile object
     const profileFields = {};
     profileFields.user = req.user.id;
-    if(degree) profileFields.degree = degree;
-    if(telephone) profileFields.telephone = telephone;
+    if (degree) profileFields.degree = degree;
+    if (telephone) profileFields.telephone = telephone;
 
     // Build social object
     profileFields.social = {}
     if (email) profileFields.social.email = email
     if (facebook) profileFields.social.facebook = facebook
-    
-    // Build personalTable object
-    // profileFields.persontalTable = {}
-    // if (halfYear) profileFields.persontalTable.halfYear = halfYear
-    // if (trainningForm) profileFields.persontalTable.trainningForm = trainningForm
-    // if (faculty) profileFields.persontalTable.faculty = faculty
-    // if (disciplinesName) profileFields.persontalTable.disciplinesName = disciplinesName
-    // if (term) profileFields.persontalTable.term = term
-    // if (сourse) profileFields.persontalTable.сourse = сourse
-    // if (groupNumber) profileFields.persontalTable.groupNumber = groupNumber
-    // if (secondTeacher) profileFields.persontalTable.secondTeacher = secondTeacher
-    // if (lectionsNumb) profileFields.persontalTable.lectionsNumb = lectionsNumb
-    // if (labsNumb) profileFields.persontalTable.labsNumb = labsNumb
-    // if (consultaionsNumb) profileFields.persontalTable.consultaionsNumb = consultaionsNumb
-    // if (practicalNumb) profileFields.persontalTable.practicalNumb = practicalNumb
-    // if (ModularContNumb) profileFields.persontalTable.ModularContNumb = ModularContNumb
-    // if (ExamsNumb) profileFields.persontalTable.ExamsNumb = ExamsNumb
 
-    try {
-      let profile = await Profile.findOne({user: req.user.id});
-
+    Profile.findOne({
+      user: req.user.id
+    }).then(profile => {
       if (profile) {
         // Update
-        profile = await Profile.findByIdAndUpdate({user: req.user.id}, {$set: profileFields}, {new: true})
-      return res.json(profile)
-      };
+        Profile.findOneAndUpdate({
+          user: req.user.id
+        }, {
+          $set: profileFields
+        }, {
+          new: true
+        }).then(profile => res.json(profile));
+      } else {
+        // Create
 
-      // Create
-      profile = new Profile(profileFields);
+        // Check if handle exists
+        Profile.findOne({
+          handle: profileFields.handle
+        }).then(profile => {
+          if (profile) {
+            errors.handle = 'That handle already exists';
+            res.status(400).json(errors);
+          }
 
-      await profile.save();
-      res.json(profile)
-    } catch (err) {
-      console.error(err.message)
-      res.status(500).send('Server Error')
+          // Save Profile
+          new Profile(profileFields).save().then(profile => res.json(profile));
+        });
+      }
+    });
+  }
+);
+
+// @route   GET api/profile/all
+// @desc    Get all profiles
+// @access  Public
+router.get('/all', (req, res) => {
+  const errors = {};
+
+  Profile.find()
+    .populate('user', ['name', 'avatar'])
+    .then(profiles => {
+      if (!profiles) {
+        errors.noprofile = 'There are no profiles';
+        return res.status(404).json(errors);
+      }
+
+      res.json(profiles);
+    })
+    .catch(err => res.status(404).json({
+      profile: 'There are no profiles'
+    }));
+});
+
+// @route   GET api/profile/handle/:handle
+// @desc    Get profile by handle
+// @access  Public
+
+router.get('/handle/:handle', (req, res) => {
+  const errors = {};
+
+  Profile.findOne({
+      handle: req.params.handle
+    })
+    .populate('user', ['name', 'avatar'])
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = 'There is no profile for this user';
+        res.status(404).json(errors);
+      }
+
+      res.json(profile);
+    })
+    .catch(err => res.status(404).json(err));
+});
+
+// @route   GET api/profile/user/:user_id
+// @desc    Get profile by user ID
+// @access  Public
+
+router.get('/user/:user_id', (req, res) => {
+  const errors = {};
+
+  Profile.findOne({
+      user: req.params.user_id
+    })
+    .populate('user', ['name', 'avatar'])
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = 'There is no profile for this user';
+        res.status(404).json(errors);
+      }
+
+      res.json(profile);
+    })
+    .catch(err =>
+      res.status(404).json({
+        profile: 'There is no profile for this user'
+      })
+    );
+});
+
+// @route   POST api/profile/experience
+// @desc    Add experience to profile
+// @access  Private
+
+router.put('/experience',
+  passport.authenticate('jwt', {
+    session: false
+  }),
+  (req, res) => {
+
+    const personalData = req.body.personalTable
+    Profile.findOne({
+      user: req.body.user._id
+    }).then(profile => {
+      if (profile) {
+        Profile.findOneAndUpdate({
+          user: req.body.user._id
+        }, {
+          $set: {
+            personalTable: personalData
+          }
+        }, {
+          new: true
+        }, (err, doc) => {
+          if (err) {
+            console.log("Something wrong when updating data!");
+          }
+          console.log("Update success")
+        })
+      }
+    })
+  }
+);
+
+// @route   POST api/profile/experience
+// @desc    Add experience to profile
+// @access  Private
+router.post(
+  '/experience/new',
+  passport.authenticate('jwt', {
+    session: false
+  }),
+  (req, res) => {
+    const {
+      errors,
+      isValid
+    } = validateExperienceInput(req.body);
+
+    // Check Validation
+    if (!isValid) {
+      // Return any errors with 400 status
+      return res.status(400).json(errors);
     }
-  } 
+
+    Profile.findOne({
+      user: req.user._id
+    }).then(profile => {
+      const newTable = {
+        halfYear: halfYear,
+        trainningForm: trainningForm,
+        faculty: faculty,
+        disciplinesName: disciplinesName,
+        term: term,
+        сourse: сourse,
+        groupNumber: groupNumber,
+        secondTeacher: secondTeacher,
+        lectionsNumb: lectionsNumb,
+        labsNumb: labsNumb,
+        consultaionsNumb: consultaionsNumb,
+        practicalNumb: practicalNumb,
+        ModularContNumb: ModularContNumb,
+        ExamsNumb: ExamsNumb
+      };
+      // Add to exp array
+      profile.personalTable.unshift(newTable);
+
+      profile.save().then(profile => res.json(profile));
+
+    });
+  }
 );
 
 
-// @route   GET api/profile
-// @desc    Get all profiles
-// @access  Public
-
-router.get('/', async (req, res) =>{
-  try {
-    const profiles = await Profile.find().populate('user', ['name', 'avatar'])
-    res.json(profiles);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error')
-  }
-})
-
-// @route   GET api/profile/user/:user_id
-// @desc    Get Profile by user ID
-// @access  Public
-
-router.get('/user/:user_id', async (req, res) =>{
-  try {
-    const profile = await Profile.findOne({
-      user: req.params.user_id})
-      .populate('user', ['name', 'avatar']);
-
-    if(!profile) return res.status(400).json({msg: 'There is no profile'});
-
-    res.json(profile);
-  } catch (err) {
-    if (err.kind == 'ObjectId') {
-      return res.status(400).json({msg: 'Profile not found'});
-    }
-    console.error(err.message);
-    res.status(500).send('Server error')
-  }
-});
-
-// @route   PUT api/profile/
-// @desc    Add personalTable
+// @route   DELETE api/profile
+// @desc    Delete user and profile
 // @access  Private
-
-router.put('/', [
-  auth,
-  [
-    check('halfYear', 'halfYear is reuired')
-    .not()
-    .isEmpty(),
-    check('faculty', 'faculty is reuired')
-    .not()
-    .isEmpty()
-  ] 
-], async (req, res)=> {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()})   
+router.delete(
+  '/',
+  passport.authenticate('jwt', {
+    session: false
+  }),
+  (req, res) => {
+    Profile.findOneAndRemove({
+      user: req.user.id
+    }).then(() => {
+      User.findOneAndRemove({
+        _id: req.user.id
+      }).then(() =>
+        res.json({
+          success: true
+        })
+      );
+    });
   }
+);
 
-  const {
-    halfYear,
-    trainningForm,
-    faculty,
-    disciplinesName,
-    term,
-    сourse,
-    groupNumber,
-    secondTeacher,
-    lectionsNumb,
-    labsNumb,
-    consultaionsNumb,
-    practicalNumb,
-    ModularContNumb,
-    ExamsNumb
-  } = req.body;
-
-  const newTable = {
-    halfYear,
-    trainningForm,
-    faculty,
-    disciplinesName,
-    term,
-    сourse,
-    groupNumber,
-    secondTeacher,
-    lectionsNumb,
-    labsNumb,
-    consultaionsNumb,
-    practicalNumb,
-    ModularContNumb,
-    ExamsNumb
-  }
-
-  // MongoDB 
-  try {
-    const profile = await Profile.findOne({user: req.user.id});
-    
-    profile.personalTable.unshift(newTable);
-
-    await profile.save()
-
-    res.json(profile);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error')
-  }
-});
 
 module.exports = router;

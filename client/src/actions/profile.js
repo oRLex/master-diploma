@@ -1,100 +1,124 @@
 import axios from 'axios';
-import {
-  setAlert
-} from './alert';
+
 import {
   GET_PROFILE,
-  PROFILE_ERROR,
-  UPDATE_PROFILE,
-  CLEAR_PROFILE,
   GET_PROFILES,
-} from './types'
+  PROFILE_LOADING,
+  CLEAR_CURRENT_PROFILE,
+  GET_ERRORS,
+  SET_CURRENT_USER
+} from './types';
 
-// GET current users profile
-export const getCurrentProfile = () => async dispatch => {
-  try {
-    const res = await axios.get('api/profile/me');
+// Get current profile
+export const getCurrentProfile = () => dispatch => {
+  dispatch(setProfileLoading());
+  axios
+    .get('/api/profile')
+    .then(res =>
+      dispatch({
+        type: GET_PROFILE,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_PROFILE,
+        payload: {}
+      })
+    );
+};
 
-    dispatch({
-      type: GET_PROFILE,
-      payload: res.data
-    })
-  } catch (err) {
-    dispatch({
-      type: PROFILE_ERROR,
-      payload: {
-        msg: err.response.statusText,
-        status: err.response.status
-      }
-    })
-  }
-}
+// Get profile by handle
+export const getProfileByHandle = handle => dispatch => {
+  dispatch(setProfileLoading());
+  axios
+    .get(`/api/profile/handle/${handle}`)
+    .then(res =>
+      dispatch({
+        type: GET_PROFILE,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_PROFILE,
+        payload: null
+      })
+    );
+};
+
+// Create Profile
+export const createProfile = (profileData, history) => dispatch => {
+  axios
+    .post('/api/profile', profileData)
+    .then(res => history.push('/workload'))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
 
 // Get all profiles
-export const getProfiles = () => async dispatch => {
-  dispatch({
-    type: CLEAR_PROFILE
-  })
-  try {
-    const res = await axios.get('api/profile');
-
-    dispatch({
-      type: GET_PROFILES,
-      payload: res.data
-    })
-  } catch (err) {
-    dispatch({
-      type: PROFILE_ERROR,
-      payload: {
-        msg: err.response.statusText,
-        status: err.response.status
-      }
-    })
-  }
-}
+export const getProfiles = () => dispatch => {
+  dispatch(setProfileLoading());
+  axios
+    .get('/api/profile/all')
+    .then(res =>
+      dispatch({
+        type: GET_PROFILES,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: null
+      })
+    );
+};
 
 
 
 
 // Add personalTable
 export const addTable = (formData, history) => dispatch => {
-  // try {
-  //   const config = {
-  //     headers: {
-  //       'Content=Type': 'application/json'
-  //     }
-  //   };
-  //   const res = await axios.put('/api/profile/', formData, config);
 
-  //   dispatch({
-  //     type: UPDATE_PROFILE,
-  //     payload: res.data
-  //   });
-
-  //   dispatch(setAlert('Experience Added', 'succes'));
-  //   history.push('/workload')
-
-  // } catch (err) {
-  //   dispatch({
-  //     type: PROFILE_ERROR,
-  //     payload: err.response.data
-  //   })
-  // }
   axios
-    .put('/api/profile/', formData)
+    .put('/api/profile/experience', formData)
     .then(res => history.push('/workload'))
     .catch(err =>
       dispatch({
-        type: PROFILE_ERROR,
+        type: GET_ERRORS,
         payload: err.response.data
       })
     );
 }
 
+//  Delete personalTable
+export const deleteExperience = id => dispatch => {
+  axios
+    .delete(`/api/profile/experience/${id}`)
+    .then(res =>
+      dispatch({
+        type: GET_PROFILE,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+
 // Get profile by ID
 export const getProfileById = userId => async dispatch => {
   try {
-    const res = await axios.get(`api/profile/user/${userId}`);
+    const res = await axios.get(`/api/profile/user/${userId}`);
 
     dispatch({
       type: GET_PROFILE,
@@ -102,7 +126,7 @@ export const getProfileById = userId => async dispatch => {
     })
   } catch (err) {
     dispatch({
-      type: PROFILE_ERROR,
+      type: GET_ERRORS,
       payload: {
         msg: err.response.statusText,
         status: err.response.status
@@ -111,6 +135,19 @@ export const getProfileById = userId => async dispatch => {
   }
 }
 
+// Profile loading
+export const setProfileLoading = () => {
+  return {
+    type: PROFILE_LOADING
+  };
+};
+
+// Clear profile
+export const clearCurrentProfile = () => {
+  return {
+    type: CLEAR_CURRENT_PROFILE
+  };
+};
 
 
 

@@ -3,7 +3,7 @@ import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { addTable } from '../../../../actions/profile'
-import TextFieldGroup from '../AddTeacher/TextFieldGroup'
+import TextFieldGroup from '../../Helpers/TextFieldGroup'
 
 const AddPersonalTable = ({ addTable, history }) => {
   const [formData, setFormData] = useState({

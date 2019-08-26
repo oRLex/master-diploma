@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { Link, withRouter } from 'react-router-dom'
-import { register } from '../../../../actions/auth'
+import { registerUser } from '../../../../actions/auth'
 import { setAlert } from '../../../../actions/alert'
 // import { createProfile } from '../../../../actions/profile'
-import TextFieldGroup from './TextFieldGroup'
+import TextFieldGroup from '../../Helpers/TextFieldGroup'
 import './CraeteUser.css'
 
 class CreateUser extends Component {
@@ -136,7 +136,7 @@ class CreateUser extends Component {
 }
 
 CreateUser.propTypes = {
-  register: PropTypes.func.isRequired,
+  registerUser: PropTypes.func.isRequired,
   // createProfile: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
@@ -147,4 +147,4 @@ const mapStateToProps = state => ({
   profile: state.profile
 })
 export default connect(mapStateToProps,
-  { setAlert, register })(withRouter(CreateUser))
+  { setAlert, registerUser })(withRouter(CreateUser))

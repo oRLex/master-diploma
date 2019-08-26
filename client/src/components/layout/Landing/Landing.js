@@ -7,9 +7,9 @@ import PropTypes from 'prop-types'
 
 
 const Landing = ({ isAuthenticated }) => {
-  if (isAuthenticated) {
-    return <Redirect to='/workload' />
-  }
+  // if (isAuthenticated) {
+  //   return <Redirect to='/workload' />
+  // }
   return (
     <div>
       <div className="landing">
