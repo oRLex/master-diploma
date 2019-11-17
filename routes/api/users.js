@@ -26,15 +26,15 @@ router.get('/test', (req, res) => res.json({
 // access Private
 router.post('/register',
   (req, res) => {
-    const {
-      errors,
-      isValid
-    } = validateRegisterInput(req.body);
+    // const {
+    //   errors,
+    //   isValid
+    // } = validateRegisterInput(req.body);
 
-    // Check Validation
-    if (!isValid) {
-      return res.status(400).json(errors);
-    }
+    // // Check Validation
+    // if (!isValid) {
+    //   return res.status(400).json(errors);
+    // }
 
 
     User.findOne({
@@ -50,7 +50,6 @@ router.post('/register',
           d: 'mm' // Default
         });
         const newUser = new User({
-          _id: Number,
           name: req.body.name,
           email: req.body.email,
           avatar,
@@ -66,7 +65,6 @@ router.post('/register',
             newUser
               .save()
               .then(user => res.json(user))
-            console.log(user)
               .catch(err => console.log(err));
           });
         });

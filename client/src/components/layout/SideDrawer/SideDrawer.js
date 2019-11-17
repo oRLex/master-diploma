@@ -29,7 +29,6 @@ class SideDrawer extends Component {
 
     );
     const adminLinks = (
-
       <ul>
         <li><span><Link to="/workload" onClick={close}>Загальне навантаження</Link></span></li>
         <li><span><Link to="/singleteacher" onClick={close}>Зведене навантаження</Link></span></li>

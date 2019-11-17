@@ -37,21 +37,22 @@ class Profiles extends Component {
             <h1 className="prime-text">All Profiles</h1>
             <div className="table">
               <div className="heading">
-                <div className="heading-item">Name</div>
-                <div className="heading-item">HalfYear</div>
-                <div className="heading-item">trainningForm</div>
-                <div className="heading-item">faculty</div>
-                <div className="heading-item">disciplinesName</div>
-                <div className="heading-item">term</div>
-                <div className="heading-item">сourse</div>
-                <div className="heading-item">groupNumber</div>
-                <div className="heading-item">secondTeacher</div>
-                <div className="heading-item">lectionsNumb</div>
-                <div className="heading-item">labsNumb</div>
-                <div className="heading-item">consultaionsNumb</div>
-                <div className="heading-item">practicalNumb</div>
-                <div className="heading-item">ModularContNumb</div>
-                <div className="heading-item">ExamsNumb</div>
+                <div className="heading-item" style={{ "width": "7%" }}>Name</div>
+                <div className="heading-item">Назва дисципліни</div>
+                <div className="heading-item">Півріччя</div>
+                <div className="heading-item">Форма навчання</div>
+                <div className="heading-item">Факультет</div>
+                <div className="heading-item">К-сть студентів</div>
+                <div className="heading-item">Номер групи</div>
+                <div className="heading-item">Курс</div>
+                <div className="heading-item">Викладач2</div>
+                <div className="heading-item">Лекції</div>
+                <div className="heading-item">Лабораторні</div>
+                <div className="heading-item">Консультації</div>
+                <div className="heading-item">Практичні</div>
+                <div className="heading-item">Модуль</div>
+                <div className="heading-item">Екзамен</div>
+                <div className="heading-item">Всього</div>
               </div>
               <div className="table-body">
                 {profileItems = profiles.map(profile => (

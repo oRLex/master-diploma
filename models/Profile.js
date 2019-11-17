@@ -26,59 +26,59 @@ const ProfileSchema = new mongoose.Schema({
   personalTable: [{
     halfYear: {
       type: String,
-      default: "-"
+      default: "0"
     },
     trainningForm: {
       type: String,
-      default: "-"
+      default: "0"
     },
     faculty: {
       type: String,
-      default: "-"
+      default: "0"
     },
     disciplinesName: {
       type: String,
-      default: "-"
+      default: "0"
     },
     term: {
       type: String,
-      default: "-"
+      default: "0"
     },
     сourse: {
       type: String,
-      default: "-"
+      default: "0"
     },
     groupNumber: {
       type: String,
-      default: "-"
+      default: "0"
     },
     secondTeacher: {
       type: String,
-      default: "-"
+      default: "0"
     },
     lectionsNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
     labsNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
     consultaionsNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
     practicalNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
     ModularContNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
     ExamsNumb: {
       type: String,
-      default: "-"
+      default: "0"
     },
   }]
 });

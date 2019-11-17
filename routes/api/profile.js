@@ -76,13 +76,13 @@ router.post(
     // Build profile object
     const profileFields = {};
     profileFields.user = req.user.id;
-    if (degree) profileFields.degree = degree;
-    if (telephone) profileFields.telephone = telephone;
+    profileFields.degree = req.body.degree;
+    profileFields.telephone = req.body.telephone;
 
     // Build social object
     profileFields.social = {}
-    if (email) profileFields.social.email = email
-    if (facebook) profileFields.social.facebook = facebook
+    if (email) profileFields.social.email = req.body.email
+    if (facebook) profileFields.social.facebook = req.body.facebook
 
     Profile.findOne({
       user: req.user.id
@@ -98,19 +98,7 @@ router.post(
         }).then(profile => res.json(profile));
       } else {
         // Create
-
-        // Check if handle exists
-        Profile.findOne({
-          handle: profileFields.handle
-        }).then(profile => {
-          if (profile) {
-            errors.handle = 'That handle already exists';
-            res.status(400).json(errors);
-          }
-
-          // Save Profile
-          new Profile(profileFields).save().then(profile => res.json(profile));
-        });
+        new Profile(profileFields).save().then(profile => res.json(profile));
       }
     });
   }
@@ -185,8 +173,8 @@ router.get('/user/:user_id', (req, res) => {
     );
 });
 
-// @route   POST api/profile/experience
-// @desc    Add experience to profile
+// @route   PUT api/profile/experience
+// @desc    Create NEW PROFILE
 // @access  Private
 
 router.put('/experience',
@@ -194,7 +182,6 @@ router.put('/experience',
     session: false
   }),
   (req, res) => {
-
     const personalData = req.body.personalTable
     Profile.findOne({
       user: req.body.user._id
@@ -219,7 +206,7 @@ router.put('/experience',
   }
 );
 
-// @route   POST api/profile/experience
+// @route   POST api/profile/experience/new
 // @desc    Add experience to profile
 // @access  Private
 router.post(
@@ -228,40 +215,41 @@ router.post(
     session: false
   }),
   (req, res) => {
-    const {
-      errors,
-      isValid
-    } = validateExperienceInput(req.body);
+    // const {
+    //   errors,
+    //   isValid
+    // } = validateExperienceInput(req.body);
 
-    // Check Validation
-    if (!isValid) {
-      // Return any errors with 400 status
-      return res.status(400).json(errors);
-    }
+    // // Check Validation
+    // if (!isValid) {
+    //   // Return any errors with 400 status
+    //   return res.status(400).json(errors);
+    // }
 
     Profile.findOne({
       user: req.user._id
     }).then(profile => {
       const newTable = {
-        halfYear: halfYear,
-        trainningForm: trainningForm,
-        faculty: faculty,
-        disciplinesName: disciplinesName,
-        term: term,
-        сourse: сourse,
-        groupNumber: groupNumber,
-        secondTeacher: secondTeacher,
-        lectionsNumb: lectionsNumb,
-        labsNumb: labsNumb,
-        consultaionsNumb: consultaionsNumb,
-        practicalNumb: practicalNumb,
-        ModularContNumb: ModularContNumb,
-        ExamsNumb: ExamsNumb
+        halfYear: req.body.halfYear,
+        trainningForm: req.body.trainningForm,
+        faculty: req.body.faculty,
+        disciplinesName: req.body.disciplinesName,
+        term: req.body.term,
+        сourse: req.body.сourse,
+        groupNumber: req.body.groupNumber,
+        secondTeacher: req.body.secondTeacher,
+        lectionsNumb: req.body.lectionsNumb,
+        labsNumb: req.body.labsNumb,
+        consultaionsNumb: req.body.consultaionsNumb,
+        practicalNumb: req.body.practicalNumb,
+        ModularContNumb: req.body.ModularContNumb,
+        ExamsNumb: req.body.ExamsNumb
       };
       // Add to exp array
       profile.personalTable.unshift(newTable);
 
       profile.save().then(profile => res.json(profile));
+      console.log("new table created")
 
     });
   }

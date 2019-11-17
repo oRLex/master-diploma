@@ -1,0 +1,8 @@
+.disabled {
+  pointer-events: none;
+}
+
+.cell,
+input {
+  width: 120px;
+}
