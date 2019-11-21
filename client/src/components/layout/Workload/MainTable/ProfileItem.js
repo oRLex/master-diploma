@@ -79,6 +79,7 @@ class ProfileItem extends Component {
 
       </Fragment>
     )
+    console.log(this.state.profile.personalTable.find(item => item.labsNumb))
     return (
       // FLEX
       <Fragment>
@@ -93,9 +94,10 @@ class ProfileItem extends Component {
               </Fragment>
             )}
             {this.state.toggleProperties && <AddRow addItem={this.addItem} toggleShow={this.showTable} />}
+            {/* {this.state.profile.personalTable.find(item =>} */}
+
           </div>
         </div>
-        {/* {console.log(this.props.profile.personalTable)} */}
       </Fragment >
 
     )

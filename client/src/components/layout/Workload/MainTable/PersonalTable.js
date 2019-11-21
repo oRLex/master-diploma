@@ -84,7 +84,10 @@ class PersonalTable extends Component {
 
     if (typeof (lectionsNumb) && typeof (consultation) && typeof (labsNumb) && typeof (practicalNumb) && typeof (ModularContNumb) && typeof (ExamsNumb) === "number") {
       let summ = lectionsNumb + consultation + labsNumb + practicalNumb + ModularContNumb + ExamsNumb
-      return (summ)
+      if (summ <= 600) {
+        return <Fragment>{summ}</Fragment>
+      }
+      else { return <Fragment>Сума більше за 600</Fragment> }
     } else {
       console.log('SOMETHING GET WRONG')
     }
@@ -138,7 +141,6 @@ class PersonalTable extends Component {
       toggleEdit = 'active'
     }
 
-    // これはなんですか？
     const dataItems = (
       <Fragment key={data._id}>
         <div className="cell">
@@ -273,7 +275,6 @@ class PersonalTable extends Component {
           {dataItems}
         </div>
       </Fragment>
-
     );
   }
 }
